@@ -8,13 +8,13 @@ import jax.numpy as jnp
 from labml import monit
 
 from .config import LLAMA_1B_PARAMS
-from entropix.kvcache import KVCache
-from entropix.model import xfmr
-from entropix.sampler import SamplerConfig
-from entropix.prompts import prompt2, prompt6
-from entropix.sampler import sample
-from entropix.tokenizer import Tokenizer
-from entropix.weights import load_weights
+from .kvcache import KVCache
+from .model import xfmr
+from .sampler import SamplerConfig
+from .prompts import prompt2, prompt6
+from .sampler import sample
+from .tokenizer import Tokenizer
+from .weights import load_weights
 
 DEFAULT_WEIGHTS_PATH = Path(__file__).parent / '../weights'
 

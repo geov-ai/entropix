@@ -125,6 +125,6 @@ async def generate(response, prompt: str):
     _generate(xfmr_weights, model_params, tokens)
 
 
-if __name__ == '__main__':
-    generate(prompt2)
-    generate(prompt6)
+# if __name__ == '__main__':
+#     generate(prompt2)
+#     generate(prompt6)

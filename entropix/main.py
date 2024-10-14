@@ -1,4 +1,5 @@
 import math
+import json
 from pathlib import Path
 
 import jax
@@ -71,7 +72,7 @@ with monit.section('load weights'):
     tokenizer = Tokenizer('entropix/tokenizer.model')
 
 
-def generate(prompt: str):
+def generate(response, prompt: str):
     # Create the batch of tokens
     def _generate(xfmr_weights, model_params, tokens):
         cur_pos = 0
@@ -98,7 +99,8 @@ def generate(prompt: str):
                                      )
         next_token = jnp.argmax(logits[:, -1], axis=-1, keepdims=True).astype(jnp.int32)
         gen_tokens = next_token
-        print(tokenizer.decode([next_token.item()]), end='', flush=True)
+        # print(tokenizer.decode([next_token.item()]), end='', flush=True)
+        await response.write(bytes(f'{json.dumps(tokenizer.decode([next_token.item()]))}\n', 'UTF-8'))
         cur_pos = seqlen
         stop = jnp.array([128001, 128008, 128009])
         sampler_cfg = SamplerConfig()
@@ -113,7 +115,8 @@ def generate(prompt: str):
                                                   )
             next_token = sample(gen_tokens, logits, scores, cfg=sampler_cfg)
             gen_tokens = jnp.concatenate((gen_tokens, next_token))
-            print(tokenizer.decode(next_token.tolist()[0]), end='', flush=True)
+            # print(tokenizer.decode(next_token.tolist()[0]), end='', flush=True)
+            await response.write(bytes(f'{json.dumps(tokenizer.decode(next_token.tolist()[0]))}\n', 'UTF-8'))
             if jnp.isin(next_token, stop).any():
                 break
 

@@ -120,7 +120,6 @@ async def generate(response, prompt: str):
             if jnp.isin(next_token, stop).any():
                 break
 
-    print('prompt', prompt)
     tokens = tokenizer.encode(prompt, bos=False, eos=False, allowed_special='all')
     await _generate(xfmr_weights, model_params, tokens)
 

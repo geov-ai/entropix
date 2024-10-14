@@ -11,12 +11,18 @@ from .config import LLAMA_1B_PARAMS
 from .kvcache import KVCache
 from .model import xfmr
 from .sampler import SamplerConfig
-from .prompts import prompt2, prompt6
 from .sampler import sample
 from .tokenizer import Tokenizer
 from .weights import load_weights
 
 DEFAULT_WEIGHTS_PATH = Path(__file__).parent / '../weights'
+
+with monit.section('load weights'):
+    weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath('1B-Instruct')
+
+    model_params = LLAMA_1B_PARAMS
+    xfmr_weights = load_weights(weights_path.absolute())
+    tokenizer = Tokenizer('/home/ubuntu/github/entropix/entropix/tokenizer.model')
 
 
 def apply_scaling(freqs: jax.Array):
@@ -62,14 +68,6 @@ def build_attn_mask(seqlen: int, start_pos: int) -> jax.Array:
         mask = jnp.triu(mask, k=1)
         mask = jnp.hstack([jnp.zeros((seqlen, start_pos)), mask], dtype=jnp.float32)
     return mask
-
-
-with monit.section('load weights'):
-    weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath('1B-Instruct')
-
-    model_params = LLAMA_1B_PARAMS
-    xfmr_weights = load_weights(weights_path.absolute())
-    tokenizer = Tokenizer('entropix/tokenizer.model')
 
 
 async def generate(response, prompt: str):
@@ -123,7 +121,6 @@ async def generate(response, prompt: str):
     print('prompt', prompt)
     tokens = tokenizer.encode(prompt, bos=False, eos=False, allowed_special='all')
     await _generate(xfmr_weights, model_params, tokens)
-
 
 # if __name__ == '__main__':
 #     generate(prompt2)

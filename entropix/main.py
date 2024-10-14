@@ -9,7 +9,7 @@ from entropix.config import LLAMA_1B_PARAMS
 from entropix.kvcache import KVCache
 from entropix.model import xfmr
 from entropix.sampler import SamplerConfig
-from entropix.prompts import prompt
+from entropix.prompts import prompt, prompt6
 from entropix.sampler import sample
 from entropix.tokenizer import Tokenizer
 from entropix.weights import load_weights
@@ -69,7 +69,7 @@ xfmr_weights = load_weights(weights_path.absolute())
 tokenizer = Tokenizer('entropix/tokenizer.model')
 
 
-def main():
+def main(sample_prompt: str):
     # Create the batch of tokens
     def generate(xfmr_weights, model_params, tokens):
         cur_pos = 0
@@ -115,11 +115,12 @@ def main():
             if jnp.isin(next_token, stop).any():
                 break
 
-    print('prompt', prompt)
-    tokens = tokenizer.encode(prompt, bos=False, eos=False, allowed_special='all')
+    print('prompt', sample_prompt)
+    tokens = tokenizer.encode(sample_prompt, bos=False, eos=False, allowed_special='all')
     generate(xfmr_weights, model_params, tokens)
 
 
 if __name__ == '__main__':
     # tyro.cli(main)
-    main()
+    main(prompt)
+    main(prompt6)

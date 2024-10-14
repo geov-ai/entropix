@@ -3,7 +3,8 @@ from pathlib import Path
 
 import jax
 import jax.numpy as jnp
-import tyro
+
+from labml import monit
 
 from entropix.config import LLAMA_1B_PARAMS
 from entropix.kvcache import KVCache
@@ -62,11 +63,12 @@ def build_attn_mask(seqlen: int, start_pos: int) -> jax.Array:
     return mask
 
 
-weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath('1B-Instruct')
+with monit.section('load weights'):
+    weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath('1B-Instruct')
 
-model_params = LLAMA_1B_PARAMS
-xfmr_weights = load_weights(weights_path.absolute())
-tokenizer = Tokenizer('entropix/tokenizer.model')
+    model_params = LLAMA_1B_PARAMS
+    xfmr_weights = load_weights(weights_path.absolute())
+    tokenizer = Tokenizer('entropix/tokenizer.model')
 
 
 def main(sample_prompt: str):

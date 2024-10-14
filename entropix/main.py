@@ -62,11 +62,14 @@ def build_attn_mask(seqlen: int, start_pos: int) -> jax.Array:
     return mask
 
 
-def main(weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath('1B-Instruct')):
-    model_params = LLAMA_1B_PARAMS
-    xfmr_weights = load_weights(weights_path.absolute())
-    tokenizer = Tokenizer('entropix/tokenizer.model')
+weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath('1B-Instruct')
 
+model_params = LLAMA_1B_PARAMS
+xfmr_weights = load_weights(weights_path.absolute())
+tokenizer = Tokenizer('entropix/tokenizer.model')
+
+
+def main():
     # Create the batch of tokens
     def generate(xfmr_weights, model_params, tokens):
         cur_pos = 0

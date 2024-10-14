@@ -72,7 +72,7 @@ with monit.section('load weights'):
     tokenizer = Tokenizer('entropix/tokenizer.model')
 
 
-def generate(response, prompt: str):
+async def generate(response, prompt: str):
     # Create the batch of tokens
     def _generate(xfmr_weights, model_params, tokens):
         cur_pos = 0

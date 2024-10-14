@@ -98,7 +98,8 @@ async def generate(response, prompt: str):
         next_token = jnp.argmax(logits[:, -1], axis=-1, keepdims=True).astype(jnp.int32)
         gen_tokens = next_token
         # print(tokenizer.decode([next_token.item()]), end='', flush=True)
-        await response.write(bytes(f'{json.dumps(tokenizer.decode([next_token.item()]))}\n', 'UTF-8'))
+        res = {'content': tokenizer.decode([next_token.item()])}
+        await response.write(bytes(f'{json.dumps(res)}\n', 'UTF-8'))
         cur_pos = seqlen
         stop = jnp.array([128001, 128008, 128009])
         sampler_cfg = SamplerConfig()
@@ -114,7 +115,8 @@ async def generate(response, prompt: str):
             next_token = sample(gen_tokens, logits, scores, cfg=sampler_cfg)
             gen_tokens = jnp.concatenate((gen_tokens, next_token))
             # print(tokenizer.decode(next_token.tolist()[0]), end='', flush=True)
-            await response.write(bytes(f'{json.dumps(tokenizer.decode(next_token.tolist()[0]))}\n', 'UTF-8'))
+            res = {'content': tokenizer.decode(next_token.tolist()[0])}
+            await response.write(bytes(f'{json.dumps(res)}\n', 'UTF-8'))
             if jnp.isin(next_token, stop).any():
                 break
 

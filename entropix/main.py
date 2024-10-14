@@ -69,46 +69,52 @@ def main(weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath('1B-Instruct')):
 
     # Create the batch of tokens
     def generate(xfmr_weights, model_params, tokens):
-        gen_tokens = None
         cur_pos = 0
         tokens = jnp.array([tokens], jnp.int32)
         bsz, seqlen = tokens.shape
         attn_mask = build_attn_mask(seqlen, cur_pos)
-        freqs_cis = precompute_freqs_cis(model_params.head_dim, model_params.max_seq_len, model_params.rope_theta,
-                                         model_params.use_scaled_rope)
-        kvcache = KVCache.new(model_params.n_layers, bsz, model_params.max_seq_len, model_params.n_local_kv_heads,
-                              model_params.head_dim)
-        logits, kvcache, _, _ = xfmr(xfmr_weights, model_params, tokens, cur_pos, freqs_cis[:seqlen], kvcache,
-                                     attn_mask=attn_mask)
+        freqs_cis = precompute_freqs_cis(model_params.head_dim,
+                                         model_params.max_seq_len,
+                                         model_params.rope_theta,
+                                         model_params.use_scaled_rope
+                                         )
+        kvcache = KVCache.new(model_params.n_layers,
+                              bsz,
+                              model_params.max_seq_len,
+                              model_params.n_local_kv_heads,
+                              model_params.head_dim
+                              )
+        logits, kvcache, _, _ = xfmr(xfmr_weights,
+                                     model_params,
+                                     tokens, cur_pos,
+                                     freqs_cis[:seqlen],
+                                     kvcache,
+                                     attn_mask=attn_mask
+                                     )
         next_token = jnp.argmax(logits[:, -1], axis=-1, keepdims=True).astype(jnp.int32)
         gen_tokens = next_token
-        print('1', tokenizer.decode([next_token.item()]), end='', flush=True)
+        print(tokenizer.decode([next_token.item()]), end='', flush=True)
         cur_pos = seqlen
         stop = jnp.array([128001, 128008, 128009])
         sampler_cfg = SamplerConfig()
         while cur_pos < 8192:
             cur_pos += 1
-            logits, kvcache, scores, stats = xfmr(xfmr_weights, model_params, next_token, cur_pos,
-                                                  freqs_cis[cur_pos:cur_pos + 1], kvcache)
+            logits, kvcache, scores, stats = xfmr(xfmr_weights,
+                                                  model_params,
+                                                  next_token,
+                                                  cur_pos,
+                                                  freqs_cis[cur_pos:cur_pos + 1],
+                                                  kvcache
+                                                  )
             next_token = sample(gen_tokens, logits, scores, cfg=sampler_cfg)
             gen_tokens = jnp.concatenate((gen_tokens, next_token))
-            print('2', tokenizer.decode(next_token.tolist()[0]), end='', flush=True)
+            print(tokenizer.decode(next_token.tolist()[0]), end='', flush=True)
             if jnp.isin(next_token, stop).any():
                 break
 
-    csv_path = Path('entropix/data/prompts.csv')
-    prompts = create_prompts_from_csv(csv_path)
-    PROMPT_TEST = False
-
-    if PROMPT_TEST:
-        for p in prompts:
-            print('3', p)
-            tokens = tokenizer.encode(p, bos=False, eos=False, allowed_special='all')
-            generate(xfmr_weights, model_params, tokens)
-    else:
-        print('prompt', prompt)
-        tokens = tokenizer.encode(prompt, bos=False, eos=False, allowed_special='all')
-        generate(xfmr_weights, model_params, tokens)
+    print('prompt', prompt)
+    tokens = tokenizer.encode(prompt, bos=False, eos=False, allowed_special='all')
+    generate(xfmr_weights, model_params, tokens)
 
 
 if __name__ == '__main__':

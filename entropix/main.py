@@ -74,7 +74,7 @@ with monit.section('load weights'):
 
 async def generate(response, prompt: str):
     # Create the batch of tokens
-    def _generate(xfmr_weights, model_params, tokens):
+    async def _generate(xfmr_weights, model_params, tokens):
         cur_pos = 0
         tokens = jnp.array([tokens], jnp.int32)
         bsz, seqlen = tokens.shape
@@ -122,7 +122,7 @@ async def generate(response, prompt: str):
 
     print('prompt', prompt)
     tokens = tokenizer.encode(prompt, bos=False, eos=False, allowed_special='all')
-    _generate(xfmr_weights, model_params, tokens)
+    await _generate(xfmr_weights, model_params, tokens)
 
 
 # if __name__ == '__main__':

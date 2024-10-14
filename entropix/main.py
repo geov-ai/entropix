@@ -8,8 +8,8 @@ import tyro
 from entropix.config import LLAMA_1B_PARAMS
 from entropix.kvcache import KVCache
 from entropix.model import xfmr
-from entropix.sampler import SamplerConfig, sample
-from entropix.prompts import create_prompts_from_csv, prompt
+from entropix.sampler import SamplerConfig
+from entropix.prompts import prompt
 from entropix.sampler import sample
 from entropix.tokenizer import Tokenizer
 from entropix.weights import load_weights
@@ -118,4 +118,5 @@ def main(weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath('1B-Instruct')):
 
 
 if __name__ == '__main__':
-    tyro.cli(main)
+    # tyro.cli(main)
+    main()

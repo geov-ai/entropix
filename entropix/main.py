@@ -7,7 +7,7 @@ import jax.numpy as jnp
 
 from labml import monit
 
-from entropix.config import LLAMA_1B_PARAMS
+from .config import LLAMA_1B_PARAMS
 from entropix.kvcache import KVCache
 from entropix.model import xfmr
 from entropix.sampler import SamplerConfig

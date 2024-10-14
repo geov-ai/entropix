@@ -5,10 +5,10 @@ import jax.numpy as jnp
 
 from functools import partial
 
-from entropix.config import ModelParams
-from entropix.kvcache import KVCache
-from entropix.stats import AttnStats
-from entropix.weights import XfmrWeights, LayerWeights
+from .config import ModelParams
+from .kvcache import KVCache
+from .stats import AttnStats
+from .weights import XfmrWeights, LayerWeights
 
 
 DEFAULT_MASK_VALUE = -0.7 * float(jnp.finfo(jnp.dtype("float32")).max)

@@ -18,7 +18,7 @@ from .weights import load_weights
 DEFAULT_WEIGHTS_PATH = Path(__file__).parent / '../weights'
 
 with monit.section('load weights'):
-    weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath('1B-Instruct')
+    weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath('3.1-8B-Instruct')
 
     model_params = LLAMA_1B_PARAMS
     xfmr_weights = load_weights(weights_path.absolute())

@@ -98,5 +98,5 @@ def main(prompt_to_test: str):
   generate(xfmr_weights, model_params, tokens)
 
 if __name__ == '__main__':
-  main(prompt)
+  # main(prompt)
   main(prompt_test)

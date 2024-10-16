@@ -10,7 +10,7 @@ from entropix.config import LLAMA_1B_PARAMS
 from entropix.kvcache import KVCache
 from entropix.model import xfmr
 from entropix.sampler import SamplerConfig, sample
-from entropix.prompts import create_prompts_from_csv, prompt
+from entropix.prompts import create_prompts_from_csv, prompt, prompt_test
 from entropix.sampler import sample
 from entropix.tokenizer import Tokenizer
 from entropix.weights import load_weights
@@ -61,11 +61,12 @@ def build_attn_mask(seqlen: int, start_pos: int) -> jax.Array:
   return mask
 
 
-def main(weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath('1B-Instruct')):
-  model_params = LLAMA_1B_PARAMS
-  xfmr_weights = load_weights(weights_path.absolute())
-  tokenizer = Tokenizer('entropix/tokenizer.model')
+weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath('1B-Instruct')
+model_params = LLAMA_1B_PARAMS
+xfmr_weights = load_weights(weights_path.absolute())
+tokenizer = Tokenizer('entropix/tokenizer.model')
 
+def main(prompt_to_test: str):
   # Create the batch of tokens
   def generate(xfmr_weights, model_params, tokens):
     gen_tokens = None
@@ -91,19 +92,11 @@ def main(weights_path: Path = DEFAULT_WEIGHTS_PATH.joinpath('1B-Instruct')):
       if jnp.isin(next_token, stop).any():
         break
 
-  csv_path = Path('entropix/data/prompts.csv')
-  prompts = create_prompts_from_csv(csv_path)
-  PROMPT_TEST = False
 
-  if PROMPT_TEST:
-    for p in prompts:
-      print(p)
-      tokens = tokenizer.encode(p,  bos=False, eos=False, allowed_special='all')
-      generate(xfmr_weights, model_params, tokens)
-  else:
-    print(prompt)
-    tokens = tokenizer.encode(prompt,  bos=False, eos=False, allowed_special='all')
-    generate(xfmr_weights, model_params, tokens)
+  print(prompt_to_test)
+  tokens = tokenizer.encode(prompt_to_test,  bos=False, eos=False, allowed_special='all')
+  generate(xfmr_weights, model_params, tokens)
 
 if __name__ == '__main__':
-  tyro.cli(main)
+  main(prompt)
+  main(prompt_test)
